@@ -29,14 +29,23 @@ jobs:
             echo "Using release tag from event: ${{ github.event.release.tag_name }}"
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
-            LATEST_TAG=$(gh release list --limit 1 | head -n 1 | awk '{print $1}')
-            if [ -n "$LATEST_TAG" ]; then
-              echo "Using latest release tag: $LATEST_TAG"
-              echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-            else
+            # Get the latest release tag
+            LATEST_TAG=$(gh release list --limit 1 | awk 'NR==1 {print $1}')
+            echo "Latest tag from gh release list: '$LATEST_TAG'"
+            if [ -z "$LATEST_TAG" ]; then
               echo "No releases found. Exiting."
               exit 0
+            else
+              echo "Using latest release tag: $LATEST_TAG"
+              echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
             fi
+          fi
+
+      - name: Ensure Release Tag Is Set
+        run: |
+          if [ -z "${{ steps.release_tag.outputs.tag }}" ]; then
+            echo "No valid release tag found. Exiting."
+            exit 0
           fi
 
       - name: Download Release Asset using GitHub CLI
