@@ -17,7 +17,7 @@ struct Config {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     // Read configuration from config.toml
-    let config: Config = fs::read_to_string("../config.toml")
+    let config: Config = fs::read_to_string("config.toml")
         .ok()
         .and_then(|contents| toml::from_str(&contents).ok())
         .unwrap_or(Config { max_items: None });
@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     println!("Using max_items = {}", max_items);
 
     // Read feed URLs from "feeds.txt" (one URL per line)
-    let feeds_content = fs::read_to_string("../feeds.txt")?;
+    let feeds_content = fs::read_to_string("feeds.txt")?;
     let feed_urls: Vec<String> = feeds_content
         .lines()
         .map(|line| line.trim())
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let channel = build_master_feed(&all_items);
 
     // Write the generated RSS feed to a file
-    fs::write("../master_feed.xml", channel.to_string())?;
+    fs::write("master_feed.xml", channel.to_string())?;
     println!("Master feed generated with {} items", all_items.len());
 
     Ok(())
