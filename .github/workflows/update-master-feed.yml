@@ -5,6 +5,7 @@ on:
     - cron: "0 * * * *"  # Runs at the top of every hour
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   update-master-feed:
