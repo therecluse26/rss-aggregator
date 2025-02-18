@@ -50,6 +50,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.release_number.outputs.release_number }}
-          files: app/target/release/rss_aggregator
+          files: app/target/release/rss-generator
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

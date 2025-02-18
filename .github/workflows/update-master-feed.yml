@@ -41,23 +41,23 @@ jobs:
 
       - name: Download Release Asset using GitHub CLI
         run: |
-          gh release download "${{ steps.release_tag.outputs.tag }}" --pattern "rss_aggregator" --dir .
+          gh release download "${{ steps.release_tag.outputs.tag }}" --pattern "rss-generator" --dir .
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Verify Downloaded Asset
         run: |
-          if [ ! -f "rss_aggregator" ]; then
-            echo "Release asset 'rss_aggregator' not found. Exiting."
+          if [ ! -f "rss-generator" ]; then
+            echo "Release asset 'rss-generator' not found. Exiting."
             exit 0
           fi
 
       - name: Make Asset Executable
-        run: chmod +x rss_aggregator
+        run: chmod +x rss-generator
 
       - name: Run Release Binary to Generate master_feed.xml
-        run: ./rss_aggregator
+        run: ./rss-generator
 
       - name: Commit changes if master_feed.xml updated
         run: |
