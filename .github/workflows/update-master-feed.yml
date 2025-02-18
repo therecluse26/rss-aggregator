@@ -2,10 +2,9 @@ name: Update Master Feed
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Runs at minute 0 of every hour
+    - cron: "0 * * * *"  # Runs at the top of every hour
   release:
     types: [published]
-  workflow_dispatch:
 
 jobs:
   update-master-feed:
@@ -17,17 +16,44 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Install GitHub CLI (if needed)
+      - name: Install GitHub CLI
         run: |
           sudo apt-get update
           sudo apt-get install gh -y
 
+      - name: Determine Release Tag
+        id: release_tag
+        run: |
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            echo "Using release tag from event: ${{ github.event.release.tag_name }}"
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "No release event found, using 'latest'"
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for Existing Release
+        run: |
+          if gh release list --limit 1 | grep .; then
+            echo "At least one release exists."
+          else
+            echo "No releases found. Exiting."
+            exit 0
+          fi
+
       - name: Download Release Asset using GitHub CLI
         run: |
-          gh release download ${{ github.event.release.tag_name || 'latest' }} --pattern "rss_aggregator" --dir .
+          gh release download "${{ steps.release_tag.outputs.tag }}" --pattern "rss_aggregator" --dir .
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Verify Downloaded Asset
+        run: |
+          if [ ! -f "rss_aggregator" ]; then
+            echo "Release asset 'rss_aggregator' not found. Exiting."
+            exit 0
+          fi
 
       - name: Make Asset Executable
         run: chmod +x rss_aggregator
