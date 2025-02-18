@@ -3,7 +3,6 @@ name: Build Release
 on:
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build-release:
@@ -20,14 +19,26 @@ jobs:
           override: true
 
       - name: Build release binary
-        run: cd ./app && cargo build --release
+        run: |
+          cd ./app && cargo build --release
+          echo "Contents of ./app/target/release/:"
+          ls -l ./app/target/release/
+
+      - name: Determine next release number
+        id: release_number
+        run: |
+          # Count existing releases and add 1
+          COUNT=$(gh release list --limit 100 | wc -l | tr -d ' ')
+          NEW_RELEASE_NUMBER=$((COUNT + 1))
+          echo "release_number=$NEW_RELEASE_NUMBER" >> $GITHUB_OUTPUT
+          echo "Next release number: $NEW_RELEASE_NUMBER"
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
-          name: "PR Release for PR #${{ github.event.pull_request.number }}"
+          tag_name: v${{ steps.release_number.outputs.release_number }}
+          name: "Release v${{ steps.release_number.outputs.release_number }}"
           draft: false
           prerelease: false
         env:
@@ -36,7 +47,7 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+          tag_name: v${{ steps.release_number.outputs.release_number }}
           files: ./app/target/release/rss_aggregator
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

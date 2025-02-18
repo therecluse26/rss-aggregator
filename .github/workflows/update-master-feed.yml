@@ -30,11 +30,8 @@ jobs:
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
             LATEST_TAG=$(gh release list --limit 1 | awk 'NR==1 {print $1}')
-            echo "Latest tag from gh release list: '$LATEST_TAG'"
             if [ -z "$LATEST_TAG" ]; then
               echo "No releases found. Exiting."
-              # Set tag output to empty to trigger conditional skipping
-              echo "tag=" >> $GITHUB_OUTPUT
               exit 0
             else
               echo "Using latest release tag: $LATEST_TAG"
@@ -42,14 +39,7 @@ jobs:
             fi
           fi
 
-      - name: Ensure Release Tag Is Set
-        if: ${{ steps.release_tag.outputs.tag == '' }}
-        run: |
-          echo "No valid release tag found. Exiting."
-          exit 0
-
       - name: Download Release Asset using GitHub CLI
-        if: ${{ steps.release_tag.outputs.tag != '' }}
         run: |
           gh release download "${{ steps.release_tag.outputs.tag }}" --pattern "rss_aggregator" --dir .
         env:
@@ -57,7 +47,6 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Verify Downloaded Asset
-        if: ${{ steps.release_tag.outputs.tag != '' }}
         run: |
           if [ ! -f "rss_aggregator" ]; then
             echo "Release asset 'rss_aggregator' not found. Exiting."
@@ -65,15 +54,12 @@ jobs:
           fi
 
       - name: Make Asset Executable
-        if: ${{ steps.release_tag.outputs.tag != '' }}
         run: chmod +x rss_aggregator
 
       - name: Run Release Binary to Generate master_feed.xml
-        if: ${{ steps.release_tag.outputs.tag != '' }}
         run: ./rss_aggregator
 
       - name: Commit changes if master_feed.xml updated
-        if: ${{ steps.release_tag.outputs.tag != '' }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
