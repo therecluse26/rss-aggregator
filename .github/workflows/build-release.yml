@@ -1,0 +1,43 @@
+name: Build Release
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build release binary
+        run: cd ./app && cargo build --release
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+          name: "PR Release for PR #${{ github.event.pull_request.number }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+          asset_path: ./app/target/release/rss_aggregator
+          asset_name: rss_aggregator
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
