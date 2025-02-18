@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Install GitHub CLI
         run: |
