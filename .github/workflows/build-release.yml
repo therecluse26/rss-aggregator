@@ -21,9 +21,10 @@ jobs:
 
       - name: Build release binary
         run: |
-          cd ./app && cargo build --release
-          echo "Contents of ./app/target/release/:"
-          ls -l ./app/target/release/
+          cd app
+          cargo build --release
+          echo "Contents of target/release/:"
+          ls -l target/release/
 
       - name: Determine next release number
         id: release_number
@@ -49,6 +50,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.release_number.outputs.release_number }}
-          files: ./app/target/release/rss_aggregator
+          files: app/target/release/rss_aggregator
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
