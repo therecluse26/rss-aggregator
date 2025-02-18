@@ -60,6 +60,9 @@ jobs:
         run: ./rss-generator
 
       - name: Commit changes if master_feed.xml updated
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
