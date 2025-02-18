@@ -1,6 +1,8 @@
 name: Update Master Feed
 
 on:
+  schedule:
+    - cron: "0 * * * *"  # Runs at minute 0 of every hour
   release:
     types: [published]
 
@@ -14,19 +16,20 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Download Release Asset
-        uses: w9jds/download-release-asset@v1
-        with:
-          repo: ${{ github.repository }}
-          tag: ${{ github.event.release.tag_name }}
-          asset: rss_aggregator
-          output: ./release/rss_aggregator
+      - name: Install GitHub CLI (if needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh -y
+
+      - name: Download Release Asset using GitHub CLI
+        run: |
+          gh release download ${{ github.event.release.tag_name || 'latest' }} --pattern "rss_aggregator" --dir .
 
       - name: Make Asset Executable
         run: chmod +x rss_aggregator
 
       - name: Run Release Binary to Generate master_feed.xml
-        run: ./release/rss_aggregator
+        run: ./rss_aggregator
 
       - name: Commit changes if master_feed.xml updated
         run: |
