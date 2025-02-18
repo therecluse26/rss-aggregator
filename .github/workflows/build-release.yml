@@ -36,8 +36,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
-          asset_path: ./app/target/release/rss_aggregator
-          asset_name: rss_aggregator
-          asset_content_type: application/octet-stream
+          files: ./target/release/rss_aggregator
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
