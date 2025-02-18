@@ -61,15 +61,15 @@ jobs:
 
       - name: Commit changes if master_feed.xml updated
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           if [ -n "$(git status --porcelain master_feed.xml)" ]; then
             git add master_feed.xml
             git commit -m "Update master feed [skip ci]"
-            git push origin HEAD:main
+            # Use the RELEASE_TOKEN in the push URL to authenticate
+            git push https://${RELEASE_TOKEN}@github.com/therecluse26/rss-aggregator.git HEAD:main
           else
             echo "No changes in master_feed.xml, skipping commit."
           fi
