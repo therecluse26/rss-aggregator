@@ -1,5 +1,8 @@
 https://hackaday.com/blog/feed/
-https://techcrunch.com/feed/
 https://feeds.arstechnica.com/arstechnica/technology-lab
-https://developers.googleblog.com/feeds/posts/default/
 https://stackoverflow.blog/feed/
+https://www.phoronix.com/rss.php
+https://www.cnx-software.com/feed/
+https://www.baldengineer.com/feed
+https://www.allaboutcircuits.com/rss
+https://www.jeffgeerling.com/blog.xml
