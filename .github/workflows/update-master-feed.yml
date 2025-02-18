@@ -25,6 +25,9 @@ jobs:
       - name: Download Release Asset using GitHub CLI
         run: |
           gh release download ${{ github.event.release.tag_name || 'latest' }} --pattern "rss_aggregator" --dir .
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Make Asset Executable
         run: chmod +x rss_aggregator
